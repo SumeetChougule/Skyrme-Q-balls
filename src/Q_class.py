@@ -28,4 +28,21 @@ class Q_balls():
         self.solution = solve_ivp(vectorfield, r, y0=w0, method='BDF')
         self.α, self.x, self.g, self.yy = self.solution.y
         self.rn = self.solution.t
-      
+    def ED(self):
+        αn, dαn, gn, dgn = self.α, self.x, self.g, self.yy
+        ED = (0.4231/λ)*((gn**2)*(np.sin(αn)**2)*(1+λ*dαn**2)+dαn**2 - 8*(M**2)*(np.cos(αn)-1)+7.425*λ*(dgn)**2  )
+        return ED  
+    def E(self):
+        αn, dαn, gn, dgn, rn = self.α, self.x, self.g, self.yy, self.rn
+        Eg = (rn**2)*((0.4231/λ)*((gn**2)*(np.sin(αn)**2)*(1+λ*dαn**2)+dαn**2 - 8*(M**2)*(np.cos(αn)-1)+7.425*λ*(dgn)**2  ))
+        Int=cumulative_trapezoid(Eg, rn, initial=0)
+        return Int
+    def QD(self):       
+        αn, dαn, gn, dgn = self.α, self.x, self.g, self.yy
+        qg = 2*(0.4231/λ)*gn*(np.sin(αn)**2)*(1+λ*dαn**2)
+        return qg
+    def Q(self):
+        αn, dαn, gn, dgn, rn = self.α, self.x, self.g, self.yy, self.rn
+        Q =  rn**2*(2*(0.4231/λ)*gn*(np.sin(αn)**2)*(1+λ*dαn**2))
+        QInt=cumulative_trapezoid(Q,rn, initial=0)
+        return QInt
