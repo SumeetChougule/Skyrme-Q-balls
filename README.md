@@ -1,2 +1,2 @@
 # Gauged Q-Balls in the gauged Skyrme model
-This notebook finds a numerical solution for the gauged Q-ball configuration.
+This repo is used for finding the numerical solutions for the gauged Q-ball configuration. Num_sol notebook contains the final version with solutions.
