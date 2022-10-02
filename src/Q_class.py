@@ -25,7 +25,7 @@ class Q_balls():
                 yy,
                 -yy*(2*r/(r**2+1e-12)) + (0.13468/λ)*g*np.sin(α)**2*(1+λ*x**2)]       
             return f
-        self.solution = solve_ivp(vectorfield, r, y0=w0, method='BDF')
+        self.solution = solve_ivp(vectorfield, (self.r0, self.rf), y0=w0, method='BDF')
         self.α, self.x, self.g, self.yy = self.solution.y
         self.rn = self.solution.t
     def ED(self):
