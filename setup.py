@@ -7,5 +7,5 @@ setup(name='Q-balls',
       author='Sumeet Chougule',
       author_email='sumeetchougule@live.com',
       url='https://github.com/SumeetChougule/Skyrme-Q-balls.git',
-      packages=['distutils', 'distutils.command'],
+      packages=['distutils', 'distutils.command']
      )
