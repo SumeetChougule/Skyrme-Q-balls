@@ -65,4 +65,41 @@ class Q_class():
         QInt=cumulative_trapezoid(Q, self.rn, initial=0)
         return QInt
     
-    
+
+class Q_ungauged():
+    def __init__(self, i, M, w, λ, r):
+        self.α0, self.x0 = i
+        self.M = M
+        self.λ = λ
+        self.w = w
+        self.r0, self.rf = r
+
+    def Num_sol(self):
+        def dSdt(r,S):
+            α, x = S
+            return [x,
+                    -x*(2*r/(r**2+1e-12))+(1/(1-self.λ*(self.w**2)*np.sin(α)**2))*(-(1/2)*(self.w**2)*(np.sin(2*α))*(1-self.λ*x**2)+(4*(self.M**2))*np.sin(α))]
+
+        self.solution = solve_ivp(
+            dSdt,
+            (self.r0, self.rf),
+            y0=(self.α0, self.x0),
+            method="BDF",
+        )
+        self.α, self.x = self.solution.y
+        self.rn = self.solution.t
+    def ED(self):
+        ED = (0.4231/self.λ)*((self.w**2)*(np.sin(self.α)**2)*(1+self.λ*self.x**2)+self.x**2 - 8*(self.M**2)*(np.cos(self.α)-1) )
+        return ED  
+    def E(self):
+        Eg = (self.rn**2)*((0.4231/self.λ)*((self.w**2)*(np.sin(self.α)**2)*(1+self.λ*self.x**2)+self.x**2 - 8*(self.M**2)*(np.cos(self.α)-1) ))
+        Int=cumulative_trapezoid(Eg, self.rn, initial=0)
+        return Int
+    def QD(self):       
+        qg = 2*(0.4231/self.λ)*self.w*(np.sin(self.α)**2)*(1+self.λ*self.x**2)
+        return qg
+    def Q(self):
+        Q =  (self.rn**2)*(2*(0.4231/self.λ)*self.w*(np.sin(self.α)**2)*(1+self.λ*self.x**2))
+        QInt=cumulative_trapezoid(Q, self.rn, initial=0)
+        return QInt
+        
