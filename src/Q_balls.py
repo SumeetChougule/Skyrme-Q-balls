@@ -34,10 +34,10 @@ class Q_class():
                 ),
                 yy,
                 -yy * (2 * r / (r**2 + 1e-12))
-                + (0.13468 / self.λ) * g * np.sin(α) ** 2 * (1 + self.λ * x**2),
+                + (0.4413)  * g * np.sin(α) ** 2 * (1 + self.λ * x**2),
             ]
             return f
-
+# (0.4413) (0.13468 / self.λ)
         self.solution = solve_ivp(
             vectorfield,
             (self.r0, self.rf),
@@ -47,9 +47,14 @@ class Q_class():
         self.α, self.x, self.g, self.yy = self.solution.y
         self.rn = self.solution.t
     def ED(self):
-        #αn, dαn, gn, dgn = self.α, self.x, self.g, self.yy
         ED = (0.4231/self.λ)*((self.g**2)*(np.sin(self.α)**2)*(1+self.λ*self.x**2)+self.x**2 - 8*(self.M**2)*(np.cos(self.α)-1)+7.425*self.λ*(self.yy)**2  )
         return ED  
+    def pr(self):
+        pr = (0.4231/self.λ)*((self.g**2)*(np.sin(self.α)**2)*(1-self.λ*self.x**2) + self.x**2 + 8*(self.M**2)*(np.cos(self.α)-1) - 7.425*self.λ*(self.yy)**2  )
+        return pr
+    def pa(self):
+        pa = (self.rn**2)*(0.4231/self.λ)*((self.g**2)*(np.sin(self.α)**2)*(1+self.λ*self.x**2) - self.x**2 + 8*(self.M**2)*(np.cos(self.α)-1)+7.425*self.λ*(self.yy)**2  )
+        return pa
     def E(self):
         #αn, dαn, gn, dgn, rn = self.α, self.x, self.g, self.yy, self.rn
         Eg = (self.rn**2)*((0.4231/self.λ)*((self.g**2)*(np.sin(self.α)**2)*(1+self.λ*self.x**2)+self.x**2 - 8*(self.M**2)*(np.cos(self.α)-1)+7.425*self.λ*(self.yy)**2  ))
@@ -103,3 +108,96 @@ class Q_ungauged():
         QInt=cumulative_trapezoid(Q, self.rn, initial=0)
         return QInt
         
+        
+class Q_dless():
+    def __init__(self, w0, λ, r):
+        self.α0, self.x0, self.g0, self.yy0 = w0
+#        self.M = M
+        self.λ = λ
+        self.r0, self.rf = r
+
+    def sol(self):
+        def vectorfield(r, funs):
+            α, x, g, yy = funs
+            f = [
+                x,
+                -x * (2 * r / (r**2 + 1e-12))
+                + (1 / (1 -   (g**2) * np.sin(α) ** 2))
+                * (
+                    2 * x * yy * g * np.sin(α) ** 2
+                    - (1 / 2) * (g**2) * (np.sin(2 * α)) * (1 -  x**2)
+                    + (4*self.λ * (140**2)) * np.sin(α)
+                ),
+                yy,
+                -yy * (2 * r / (r**2 + 1e-12))
+                + 4*self.λ *(93**2)  * g * np.sin(α) ** 2 * (1 +  x**2),
+            ]
+            return f
+# (0.4413) (0.13468 / self.λ)
+        self.solution = solve_ivp(
+            vectorfield,
+            (self.r0, self.rf),
+            y0=(self.α0, self.x0, self.g0, self.yy0),
+            method="BDF",
+        )
+        self.α, self.x, self.g, self.yy = self.solution.y
+        self.rn = self.solution.t
+    def ED(self):
+        ED = 4*np.pi*(93**2) *((self.g**2)*(np.sin(self.α)**2)*(1 + self.x**2)+self.x**2 - 8*(self.λ *140**2)*(np.cos(self.α)-1)+(1/((93**2)*self.λ))*(self.yy)**2  )
+        return ED  
+    def E(self):
+        Eg = (self.λ**(1/2))*(self.rn**2)*(4*np.pi*(93**2) *((self.g**2)*(np.sin(self.α)**2)*(1 + self.x**2)+self.x**2 - 8*(self.λ *140**2)*(np.cos(self.α)-1)+(1/((93**2)*self.λ))*(self.yy)**2  ))
+        Int=cumulative_trapezoid(Eg, self.rn, initial=0)
+        return Int
+    def QD(self):       
+        qg = 4*np.pi*(93**2)*(self.λ)*self.g*(np.sin(self.α)**2)*(1+self.x**2)
+        return qg
+    def Q(self):
+        Q =  (self.λ**(1/2))*(self.rn**2)*(4*np.pi*(93**2)*(self.λ)*self.g*(np.sin(self.α)**2)*(1+self.x**2))
+        QInt=cumulative_trapezoid(Q, self.rn, initial=0)
+        return QInt   
+    def pr(self):
+        pr = (0.4231/self.λ)*((self.g**2)*(np.sin(self.α)**2)*(1-self.λ*self.x**2) + self.x**2 + 8*(self.M**2)*(np.cos(self.α)-1) - 7.425*self.λ*(self.yy)**2  )
+        return pr
+    def pa(self):
+        pa = (self.rn**2)*(0.4231/self.λ)*((self.g**2)*(np.sin(self.α)**2)*(1+self.λ*self.x**2) - self.x**2 + 8*(self.M**2)*(np.cos(self.α)-1)+7.425*self.λ*   (self.yy)**2  )
+        return pa
+    
+    
+
+class UQ_dless():
+    def __init__(self, i, w, λ, r):
+        self.α0, self.x0 = i
+#        self.M = M
+        self.λ = λ
+        self.w = w
+        self.r0, self.rf = r
+
+    def Num_sol(self):
+        def dSdt(r,S):
+            α, x = S
+            return [x,
+                    -x*(2*r/(r**2+1e-12))+(1/(1-(self.w**2)*np.sin(α)**2))*(-(1/2)*(self.w**2)*(np.sin(2*α))*(1-x**2)+(4*self.λ * (140**2))*np.sin(α))]
+
+        self.solution = solve_ivp(
+            dSdt,
+            (self.r0, self.rf),
+            y0=(self.α0, self.x0),
+            method="BDF",
+        )
+        self.α, self.x = self.solution.y
+        self.rn = self.solution.t
+    def ED(self):
+        ED = 4*np.pi*(93**2) *((self.w**2)*(np.sin(self.α)**2)*(1 + self.x**2)+self.x**2 - 8*(self.λ *140**2)*(np.cos(self.α)-1))
+        return ED  
+    def E(self):
+        Eg = (self.λ**(1/2))*(self.rn**2)*(4*np.pi*(93**2) *((self.w**2)*(np.sin(self.α)**2)*(1 + self.x**2)+self.x**2 - 8*(self.λ *140**2)*(np.cos(self.α)-1)))
+        Int=cumulative_trapezoid(Eg, self.rn, initial=0)
+        return Int
+    def QD(self):       
+        qg = 4*np.pi*(93**2)*(self.λ)*self.w*(np.sin(self.α)**2)*(1+self.x**2)
+        return qg
+    def Q(self):
+        Q =  (self.λ**(1/2))*(self.rn**2)*(4*np.pi*(93**2)*(self.λ)*self.w*(np.sin(self.α)**2)*(1+self.x**2))
+        QInt=cumulative_trapezoid(Q, self.rn, initial=0)
+        return QInt       
